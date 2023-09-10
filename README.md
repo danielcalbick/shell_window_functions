@@ -5,14 +5,14 @@ This is a collection of useful shell functions for managing terminal windows on 
 ## Features
 
 - Control window position, size, and theme
-- Works with Terminal.app and Warp  
-- Uses AppleScript under the hood
+- Works with Terminal.app and Warp.app  
+- Uses AppleScript under the hood, so for now it only works for macOS
 
 ## Functions 
 
 ### `grace()`
 
-Open a new window, resize, reposition, change theme, and SSH to a remote server.
+Example function that will open a new terminal window, resize, reposition, change theme, and SSH to a remote server.
 
 ### `open_new_window()`
 
@@ -56,4 +56,4 @@ Source `dans_window_functions.sh` in your shell startup file.
 
 ```bash
 # .zshrc or .bash_profile 
-source dans_window_functions.sh# shell_window_functions
+source dans_window_functions.sh
