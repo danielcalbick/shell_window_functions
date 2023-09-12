@@ -59,8 +59,36 @@ function get_window_position(){
     echo "Pixel Value: ($cur_x $cur_y $cur_width $cur_height)"
 }; alias winpos=get_window_position
 
-function get_current_screen_bounds(){
-    echo $(osascript -e 'tell application "Finder" to get bounds of window of desktop')
+function get_current_screen_bounds() {
+    terminal_app=$(get_terminal_app_id)
+    terminal_position=$(osascript -e "tell application \"System Events\" to tell application process \"$terminal_app\" to get position of front window")
+
+  
+    # Parse the position to get x and y coordinates
+    x=$(echo $terminal_position | awk -F ', ' '{print $1}')
+    y=$(echo $terminal_position | awk -F ', ' '{print $2}')
+
+    # Get the dimensions of the MacBook display from system_profiler
+    macbook_dims=$(system_profiler SPDisplaysDataType | awk -F': ' '/Resolution/{print $2; exit}' | awk '{print $1, $3}')
+    macbook_x2=$(echo $macbook_dims | awk '{print $1}')
+    macbook_y2=$(echo $macbook_dims | awk '{print $2}')
+
+    # Get the bounds of the primary display from AppleScript
+    primary_bounds=$(osascript -e 'tell application "Finder" to get bounds of window of desktop')
+    primary_x1=$(echo $primary_bounds | awk -F', ' '{print $1}')
+    primary_y1=$(echo $primary_bounds | awk -F', ' '{print $2}')
+    primary_x2=$(echo $primary_bounds | awk -F', ' '{print $3}')
+    primary_y2=$(echo $primary_bounds | awk -F', ' '{print $4}')
+
+    # Determine which screen the Terminal window is on and print the bounds
+    if [ "$x" -ge 0 ] && [ "$x" -le "$macbook_x2" ] && [ "$y" -ge 0 ] && [ "$y" -le "$macbook_y2" ]; then
+        echo "0,0,$macbook_x2,$macbook_y2"
+    elif [ "$x" -ge "$primary_x1" ] && [ "$x" -le "$primary_x2" ] && [ "$y" -ge "$primary_y1" ] && [ "$y" -le "$primary_y2" ]; then
+        echo "$primary_x1,$primary_y1,$primary_x2,$primary_y2"
+    else
+        echo "Terminal position is out of known bounds." 
+        return
+    fi
 }; alias screenpos=get_current_screen_bounds
 
 function move_window(){
